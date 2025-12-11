@@ -85,7 +85,7 @@ def render_auth_section(auth: WebAuthManager):
 
     elif auth.state == AuthState.NEEDS_CODE:
         st.markdown("### Step 3: Verification Code")
-        st.info(f"Code sent to {auth.phone}")
+        st.info(f"Code sent to {auth.phone} **via Telegram app** (not SMS!)")
         code = st.text_input("Enter code")
 
         if st.button("Verify", disabled=not code):

@@ -54,9 +54,10 @@ tg-transcribe "Chat Name" --year 2025
 
 1. Go to [my.telegram.org](https://my.telegram.org)
 2. Log in with your phone number
-3. Click "API development tools"
-4. Create a new application
-5. Copy **API ID** and **API Hash**
+3. Enter the code sent **via Telegram app** (not SMS!)
+4. Click "API development tools"
+5. Create a new application
+6. Copy **API ID** and **API Hash**
 
 This takes about 2 minutes and is completely free.
 

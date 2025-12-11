@@ -12,7 +12,7 @@ from telegram_voice_transcriber.filters import MessageType
 
 def test_slugify_chat_name():
     assert slugify_chat_name("Alice Example") == "alice-example"
-    assert slugify_chat_name("Chat_with@Alice!") == "chat-with-marian"
+    assert slugify_chat_name("Chat_with@Alice!") == "chat-with-alice"
 
 
 def test_parse_message_types_accepts_known_values():

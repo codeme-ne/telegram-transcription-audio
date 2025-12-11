@@ -100,3 +100,35 @@ async def test_collector_filters_within_dates():
     )
 
     assert [msg.message_id for msg in result.messages] == [2]
+
+
+@pytest.mark.asyncio
+async def test_list_dialogs_returns_chat_list():
+    from unittest.mock import MagicMock
+
+    mock_client = MagicMock()
+    mock_dialog1 = MagicMock()
+    mock_dialog1.name = "Alice"
+    mock_dialog1.id = 123
+    mock_dialog1.is_user = True
+    mock_dialog1.is_group = False
+
+    mock_dialog2 = MagicMock()
+    mock_dialog2.name = "Work Group"
+    mock_dialog2.id = 456
+    mock_dialog2.is_user = False
+    mock_dialog2.is_group = True
+
+    async def mock_iter_dialogs(limit=None):
+        for d in [mock_dialog1, mock_dialog2]:
+            yield d
+
+    mock_client.iter_dialogs = mock_iter_dialogs
+
+    from telegram_voice_transcriber.tg_client import list_dialogs
+    dialogs = await list_dialogs(mock_client)
+
+    assert len(dialogs) == 2
+    assert dialogs[0]["name"] == "Alice"
+    assert dialogs[0]["id"] == 123
+    assert dialogs[1]["name"] == "Work Group"

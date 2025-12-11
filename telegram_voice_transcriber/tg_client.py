@@ -109,6 +109,19 @@ class TelegramCollector:
         return display
 
 
+async def list_dialogs(client: Any, limit: int = 50) -> list[dict]:
+    """List recent dialogs/chats for selection UI."""
+    dialogs = []
+    async for dialog in client.iter_dialogs(limit=limit):
+        dialogs.append({
+            "id": dialog.id,
+            "name": dialog.name or str(dialog.id),
+            "is_user": getattr(dialog, "is_user", False),
+            "is_group": getattr(dialog, "is_group", False),
+        })
+    return dialogs
+
+
 def _display_title(entity: Any) -> str:
     for attr in ("title", "first_name", "username"):
         value = getattr(entity, attr, None)

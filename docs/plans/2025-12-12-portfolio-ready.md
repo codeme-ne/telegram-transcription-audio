@@ -1,0 +1,568 @@
+# Portfolio-Ready Implementation Plan
+
+> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+
+**Goal:** Make the GitHub repo presentation-ready for tech recruiters and potential clients with mockup screenshots and proper licensing.
+
+**Architecture:** Create HTML mockups that mimic Streamlit UI, take screenshots using browser automation, add MIT license, and update README with screenshot gallery.
+
+**Tech Stack:** HTML/CSS (Streamlit-like styling), Playwright for screenshots, Markdown
+
+---
+
+## Task 1: Add MIT License
+
+**Files:**
+- Create: `LICENSE`
+
+**Step 1: Create LICENSE file**
+
+Create `LICENSE` with MIT license text:
+
+```text
+MIT License
+
+Copyright (c) 2025 Lukasz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+**Step 2: Commit**
+
+```bash
+git add LICENSE
+git commit -m "chore: add MIT license"
+```
+
+---
+
+## Task 2: Create Mockup HTML
+
+**Files:**
+- Create: `mockups/mockup.html`
+
+**Step 1: Create mockups directory**
+
+```bash
+mkdir -p mockups
+```
+
+**Step 2: Create mockup HTML file**
+
+Create `mockups/mockup.html` - a single HTML file with 4 screens that look like Streamlit:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Voice Transcriber - Mockups</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans Pro', sans-serif; background: #0e1117; color: #fafafa; }
+
+        .screen {
+            width: 1200px;
+            min-height: 700px;
+            margin: 40px auto;
+            background: #0e1117;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            page-break-after: always;
+        }
+
+        .screen-label {
+            background: #ff4b4b;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .container { display: flex; }
+
+        .sidebar {
+            width: 300px;
+            background: #262730;
+            padding: 20px;
+            min-height: 660px;
+        }
+
+        .main {
+            flex: 1;
+            padding: 40px;
+        }
+
+        h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        h2 { font-size: 1.3rem; margin-bottom: 15px; color: #fafafa; }
+        h3 { font-size: 1rem; margin-bottom: 10px; color: #fafafa; }
+
+        p.subtitle { color: #808495; margin-bottom: 30px; }
+
+        .sidebar h2 { font-size: 1.1rem; margin-bottom: 20px; }
+        .sidebar h3 { font-size: 0.9rem; margin: 20px 0 10px; color: #fafafa; }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #4a4a5a;
+            border-radius: 6px;
+            background: #0e1117;
+            color: #fafafa;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ff4b4b;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button.primary {
+            background: #ff4b4b;
+            color: white;
+        }
+
+        button.secondary {
+            background: #262730;
+            color: #fafafa;
+            border: 1px solid #4a4a5a;
+        }
+
+        .info-box {
+            background: #1e3a5f;
+            border-left: 4px solid #4b9fff;
+            padding: 15px;
+            border-radius: 0 6px 6px 0;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #1a3d1a;
+            border-left: 4px solid #4bff4b;
+            padding: 15px;
+            border-radius: 0 6px 6px 0;
+            margin: 20px 0;
+        }
+
+        .expander {
+            background: #262730;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .expander-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .columns { display: flex; gap: 40px; }
+        .col { flex: 1; }
+
+        .divider {
+            height: 1px;
+            background: #333;
+            margin: 30px 0;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+        }
+
+        .status-box {
+            background: #262730;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: #4bff4b;
+        }
+
+        .status-item {
+            padding: 8px 0;
+            color: #808495;
+        }
+
+        .download-btn {
+            background: #ff4b4b;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #4a4a5a;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 2px;
+        }
+
+        .preview-box {
+            background: #1a1a2e;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .preview-box h4 {
+            color: #808495;
+            margin-bottom: 15px;
+        }
+
+        .transcript-entry {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .transcript-meta {
+            color: #808495;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .transcript-text {
+            color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Screen 1: Login -->
+<div class="screen" id="screen-1">
+    <div class="screen-label">Screen 1: API Credentials</div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>🔐 Authentication</h2>
+            <h3>Step 1: API Credentials</h3>
+            <p style="color: #808495; font-size: 13px; margin-bottom: 15px;">
+                <a href="#" style="color: #4b9fff;">Get credentials from my.telegram.org</a>
+            </p>
+            <label style="font-size: 13px; color: #808495;">API ID</label>
+            <input type="text" placeholder="12345678">
+            <label style="font-size: 13px; color: #808495;">API Hash</label>
+            <input type="password" value="••••••••••••••••">
+            <button class="primary">Save Credentials</button>
+        </div>
+        <div class="main">
+            <h1>🎙️ Telegram Voice Transcriber</h1>
+            <p class="subtitle">Transcribe Telegram voice messages locally using Whisper. No Premium required.</p>
+
+            <div class="info-box">
+                👈 Complete authentication in the sidebar to start transcribing.
+            </div>
+
+            <div class="expander">
+                <div class="expander-header">
+                    📖 How to get Telegram API credentials (2 minutes)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Screen 2: Chat Selection -->
+<div class="screen" id="screen-2">
+    <div class="screen-label">Screen 2: Chat Selection</div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>🔐 Authentication</h2>
+            <div class="success-box">
+                ✅ Logged in as Lukasz
+            </div>
+            <button class="secondary">Logout</button>
+        </div>
+        <div class="main">
+            <h1>🎙️ Telegram Voice Transcriber</h1>
+            <p class="subtitle">Transcribe Telegram voice messages locally using Whisper. No Premium required.</p>
+
+            <div class="columns">
+                <div class="col">
+                    <h2>📋 Configuration</h2>
+                    <label style="font-size: 13px; color: #808495;">Select chat</label>
+                    <select>
+                        <option>Marian Zefferer</option>
+                        <option>Alice Example</option>
+                        <option>Work Group</option>
+                        <option>Family Chat</option>
+                    </select>
+
+                    <label style="font-size: 13px; color: #808495;">Year</label>
+                    <input type="number" value="2025">
+
+                    <label style="font-size: 13px; color: #808495;">Message types</label>
+                    <div>
+                        <span class="tag">voice</span>
+                        <span class="tag">text</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <h2>⚙️ Options</h2>
+                    <div class="checkbox">
+                        <input type="checkbox">
+                        <label style="font-size: 14px;">Include my messages</label>
+                    </div>
+
+                    <label style="font-size: 13px; color: #808495; margin-top: 15px; display: block;">Language</label>
+                    <select>
+                        <option>de</option>
+                        <option>en</option>
+                    </select>
+
+                    <label style="font-size: 13px; color: #808495;">Whisper model</label>
+                    <select>
+                        <option>small</option>
+                        <option>medium</option>
+                        <option>large</option>
+                    </select>
+
+                    <div class="checkbox">
+                        <input type="checkbox" checked>
+                        <label style="font-size: 14px;">Dry run (preview only)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="primary" style="width: auto; padding: 15px 40px; font-size: 16px;">
+                🚀 Start Transcription
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Screen 3: Processing -->
+<div class="screen" id="screen-3">
+    <div class="screen-label">Screen 3: Processing</div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>🔐 Authentication</h2>
+            <div class="success-box">
+                ✅ Logged in as Lukasz
+            </div>
+            <button class="secondary">Logout</button>
+        </div>
+        <div class="main">
+            <h1>🎙️ Telegram Voice Transcriber</h1>
+            <p class="subtitle">Transcribe Telegram voice messages locally using Whisper. No Premium required.</p>
+
+            <div class="status-box">
+                <div class="status-header">
+                    <span>⚙️</span>
+                    <span>Processing...</span>
+                </div>
+                <div class="status-item">📥 Collecting messages from Telegram...</div>
+                <div class="status-item">Found 47 messages</div>
+                <div class="status-item">🤖 Loading Whisper model (small)...</div>
+                <div class="status-item">⚙️ Processing messages...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Screen 4: Result -->
+<div class="screen" id="screen-4">
+    <div class="screen-label">Screen 4: Result</div>
+    <div class="container">
+        <div class="sidebar">
+            <h2>🔐 Authentication</h2>
+            <div class="success-box">
+                ✅ Logged in as Lukasz
+            </div>
+            <button class="secondary">Logout</button>
+        </div>
+        <div class="main">
+            <h1>🎙️ Telegram Voice Transcriber</h1>
+            <p class="subtitle">Transcribe Telegram voice messages locally using Whisper. No Premium required.</p>
+
+            <div class="status-box">
+                <div class="status-header">
+                    <span>✅</span>
+                    <span>Transcription complete!</span>
+                </div>
+                <div class="status-item">Processed 47 messages</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <h2>📄 Result</h2>
+            <button class="download-btn">
+                ⬇️ Download Markdown
+            </button>
+
+            <div class="preview-box">
+                <h4>Preview</h4>
+                <div class="transcript-entry">
+                    <div class="transcript-meta">📅 2025-01-15</div>
+                    <div class="transcript-meta">09:23 | Marian Zefferer | 🎤</div>
+                    <div class="transcript-text">Hey, ich wollte dir nur kurz sagen, dass das Meeting auf 14 Uhr verschoben wurde. Kannst du mir bitte Bescheid geben ob das bei dir passt?</div>
+                </div>
+                <div class="transcript-entry">
+                    <div class="transcript-meta">09:25 | Lukasz | 💬</div>
+                    <div class="transcript-text">Ja, 14 Uhr passt perfekt!</div>
+                </div>
+                <div class="transcript-entry">
+                    <div class="transcript-meta">09:30 | Marian Zefferer | 🎤</div>
+                    <div class="transcript-text">Super, dann bis später. Ach ja, bring bitte die Unterlagen mit die wir letzte Woche besprochen haben...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+```
+
+**Step 3: Commit**
+
+```bash
+git add mockups/mockup.html
+git commit -m "feat: add HTML mockups for screenshots"
+```
+
+---
+
+## Task 3: Take Screenshots
+
+**Files:**
+- Create: `screenshots/01-login.png`
+- Create: `screenshots/02-chat-selection.png`
+- Create: `screenshots/03-processing.png`
+- Create: `screenshots/04-result.png`
+
+**Step 1: Create screenshots directory**
+
+```bash
+mkdir -p screenshots
+```
+
+**Step 2: Take screenshots using Playwright**
+
+Use Playwright MCP to:
+1. Open `mockups/mockup.html`
+2. Screenshot each screen element
+3. Save to `screenshots/` folder
+
+**Step 3: Commit**
+
+```bash
+git add screenshots/
+git commit -m "feat: add UI screenshots for README"
+```
+
+---
+
+## Task 4: Update README with Screenshots
+
+**Files:**
+- Modify: `README.md`
+
+**Step 1: Update README**
+
+Add screenshots section after Features, before Quick Start:
+
+```markdown
+## Screenshots
+
+| Login | Chat Selection |
+|-------|----------------|
+| ![Login](screenshots/01-login.png) | ![Chat Selection](screenshots/02-chat-selection.png) |
+
+| Processing | Result |
+|------------|--------|
+| ![Processing](screenshots/03-processing.png) | ![Result](screenshots/04-result.png) |
+```
+
+**Step 2: Commit**
+
+```bash
+git add README.md
+git commit -m "docs: add screenshots to README"
+```
+
+---
+
+## Task 5: Final Push
+
+**Step 1: Push all changes**
+
+```bash
+git push origin main
+```
+
+**Step 2: Verify on GitHub**
+
+Check that:
+- LICENSE shows in repo
+- Screenshots display in README
+- All badges work
+
+---
+
+## Summary
+
+| Task | Description |
+|------|-------------|
+| 1 | Add MIT License |
+| 2 | Create mockup HTML |
+| 3 | Take screenshots |
+| 4 | Update README |
+| 5 | Push to GitHub |

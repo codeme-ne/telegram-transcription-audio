@@ -1,122 +1,98 @@
 # Telegram Voice Transcriber
 
-Exportiert Sprachnachrichten (und optional Text) aus einem Telegram-Chat, transkribiert sie lokal mit Whisper und schreibt die Ergebnisse als Markdown-Datei – vollständig offline, ohne Telegram Premium.
+Export and transcribe Telegram voice messages locally using Whisper AI. **No Telegram Premium required.**
 
-## Funktionsüberblick
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.40+-red.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-- **Ziel-Chat**: ein bestimmter Chat (z. B. „Alice Example“) für ein festgelegtes Jahr (Standard: 2025).
-- **Inhalte**: Sprachnachrichten (`voice`, `audio`, `video_note`) und Textnachrichten.
-- **Filter**: Nur Nachrichten des Gegenübers; eigene Beiträge optional (`--include-self`).
-- **Dry-Run**: `--dry-run` zeigt eine Übersicht (Zählung + Beispiele), ohne Downloads.
-- **Resume**: Wiederaufnahme über `state.json`, um bereits verarbeitete Nachrichten zu überspringen.
-- **Ausgabe**: `alice-example-2025.md` im Datenverzeichnis, gruppiert nach Datum, mit Uhrzeit, Absender, Text/Transkript und Message-ID.
+## Features
 
-## Voraussetzungen
+- **Privacy-first**: All processing happens locally - your data never leaves your machine
+- **Smart filtering**: Filter by sender, message type, date range
+- **Resumable**: Pick up where you left off with automatic state tracking
+- **No Premium needed**: Uses Telegram's free API, not premium features
+- **Web UI**: Simple browser interface with Streamlit
+- **CLI**: Full-featured command line for automation
 
-- Kubuntu 25.04 (oder vergleichbar).
-- Python ≥ 3.10 (venv empfohlen).
-- `ffmpeg` installiert (`sudo apt install ffmpeg`).
-- Telegram API Credentials (my.telegram.org → „API development tools“ → `api_id`, `api_hash`).
-- Optionale GPU (verbessert Geschwindigkeit); CPU funktioniert mit `model small`.
+## Quick Start
 
-## Installation
+### Web UI (Recommended)
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -e '.[dev]'
-```
+# Install
+pip install -e .
 
-## Telegram-Login (erstmalig)
-
-Beim ersten Tool-Start wird eine Session-Datei angelegt (Standard: `.data/telegram.session`). Der Ablauf:
-
-1. Telefon­nummer (inkl. +Ländercode) eingeben.
-2. Telegram-Code bestätigen.
-3. Falls 2FA aktiv, Passwort eingeben.
-
-Die Session bleibt lokal gespeichert.
-
-## Beispiel-Workflow
-
-### 1. Dry-Run (Überblick, keine Downloads)
-
-```bash
-TG_API_ID=123456 TG_API_HASH=abcdef123456 \
-tg-transcribe "Alice Example" \
-  --year 2025 \
-  --dry-run \
-  --data-dir ~/.cache/telegram-transcriber
-```
-
-Ausgabe: Zählung nach Typ sowie Beispielnachrichten.
-
-### 2. Vollständiger Lauf
-
-```bash
-TG_API_ID=123456 TG_API_HASH=abcdef123456 \
-tg-transcribe "Alice Example" \
-  --year 2025 \
-  --data-dir ~/.cache/telegram-transcriber \
-  --timezone Europe/Vienna \
-  --model small
-```
-
-- Sprachnachrichten werden in `cache/` gespeichert.
-- Transkripte werden erzeugt (`models/` enthält das Whisper-Modell).
-- Markdown: `output/alice-example-2025.md`.
-
-### Wichtige Optionen
-
-| Option | Beschreibung |
-| --- | --- |
-| `--include-self` | Eigene Nachrichten/Sprachnachrichten aufnehmen. |
-| `--type voice --type text` | Steuert zulässige Typen (voice, audio, video_note, text). |
-| `--timezone Europe/Vienna` | Zeitzone für Datum/Uhrzeit in Markdown. |
-| `--session <pfad>` | Alternativer Pfad zur `.session` Datei. |
-| `--language de` | Whisper-Sprache festlegen (z. B. `en`, `de`). |
-| `--model small` | Whisper-Modellgröße (`tiny`, `base`, `small`, `medium`, …). |
-
-## Web UI
-
-```bash
-# Start the web interface
+# Run
 streamlit run app.py
-
-# Or using the installed command
-tg-web
 ```
 
-Open http://localhost:8501 in your browser.
+Open http://localhost:8501 and follow the guided setup.
 
-## Tests & Entwicklung
+### Docker
 
-- **Alle Tests**: `pytest`
-- Ideologie: TDD – Tests zuerst, keine Anpassung erfolgreicher Tests.
-- Wichtige Module: `filters`, `download`, `transcribe`, `pipeline`, `tg_client`, `cli`.
-
-## Verzeichnisstruktur (Standard)
-
-```
-.data/
-  alice-example/
-    2025/
-      cache/          # heruntergeladene Mediendateien (Jahres- & Monats-Unterordner)
-      models/         # Cache für Whisper-Modelle
-      output/         # Markdown-Ergebnis
-      state/state.json# Resume-Information
+```bash
+docker build -t telegram-transcriber .
+docker run -p 8501:8501 telegram-transcriber
 ```
 
-## Nächste Schritte (TODO)
+### CLI
 
-- **Telegram API Zugang**: `api_id` und `api_hash` von my.telegram.org besorgen.
-- **Verifikation**: Mit echten Daten `--dry-run` ausführen, anschließend vollständigen Lauf.
-- **TDD beibehalten**: Bei künftigen Erweiterungen neue Tests vor Implementierung hinzufügen (z. B. zusätzliche Filter).
+```bash
+# Set your API credentials
+export TG_API_ID=your_id
+export TG_API_HASH=your_hash
 
-## Hinweise & Grenzen
+# Preview (dry run)
+tg-transcribe "Chat Name" --year 2025 --dry-run
 
-- Secret Chats sind nicht exportierbar (Telegram-Beschränkung).
-- Gelöschte oder abgelaufene Medien lassen sich nicht mehr abrufen.
-- Daten bleiben lokal – kein Upload zu Drittanbietern.
-- Whisper-Ladezeit: erstes Modell-Laden (CPU) kann >1 Minute dauern, danach Caching.
+# Full transcription
+tg-transcribe "Chat Name" --year 2025
+```
+
+## Getting Telegram API Credentials
+
+1. Go to [my.telegram.org](https://my.telegram.org)
+2. Log in with your phone number
+3. Click "API development tools"
+4. Create a new application
+5. Copy **API ID** and **API Hash**
+
+This takes about 2 minutes and is completely free.
+
+## How It Works
+
+1. **Connect**: Authenticate with your Telegram account
+2. **Select**: Choose a chat and configure filters
+3. **Process**: Voice messages are downloaded and transcribed locally
+4. **Export**: Get a clean Markdown file organized by date
+
+## Requirements
+
+- Python 3.10+
+- ffmpeg (`sudo apt install ffmpeg` on Ubuntu)
+- ~2GB disk space for Whisper models (downloaded on first use)
+
+## Tech Stack
+
+- **Telethon**: Telegram MTProto client
+- **faster-whisper**: Optimized Whisper inference
+- **Streamlit**: Web UI framework
+- **Typer**: CLI framework
+
+## Development
+
+```bash
+# Install with dev dependencies
+pip install -e '.[dev]'
+
+# Run tests
+pytest
+
+# Run single test
+pytest tests/test_pipeline.py -v
+```
+
+## License
+
+MIT

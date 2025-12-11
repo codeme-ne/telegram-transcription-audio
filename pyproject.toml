@@ -29,6 +29,7 @@ dev = [
 
 [project.scripts]
 tg-transcribe = "telegram_voice_transcriber.cli:main"
+tg-web = "telegram_voice_transcriber.web:run"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

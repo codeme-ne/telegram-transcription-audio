@@ -78,6 +78,18 @@ tg-transcribe "Alice Example" \
 | `--language de` | Whisper-Sprache festlegen (z. B. `en`, `de`). |
 | `--model small` | Whisper-Modellgröße (`tiny`, `base`, `small`, `medium`, …). |
 
+## Web UI
+
+```bash
+# Start the web interface
+streamlit run app.py
+
+# Or using the installed command
+tg-web
+```
+
+Open http://localhost:8501 in your browser.
+
 ## Tests & Entwicklung
 
 - **Alle Tests**: `pytest`

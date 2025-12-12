@@ -15,6 +15,16 @@ Export and transcribe Telegram voice messages locally using Whisper AI. **No Tel
 - **Web UI**: Simple browser interface with Streamlit
 - **CLI**: Full-featured command line for automation
 
+## Screenshots
+
+| Login | Chat Selection |
+|-------|----------------|
+| ![Login](screenshots/01-login.png) | ![Chat Selection](screenshots/02-chat-selection.png) |
+
+| Processing | Result |
+|------------|--------|
+| ![Processing](screenshots/03-processing.png) | ![Result](screenshots/04-result.png) |
+
 ## Quick Start
 
 ### Web UI (Recommended)

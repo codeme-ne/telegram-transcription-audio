@@ -31,6 +31,9 @@ dev = [
 tg-transcribe = "telegram_voice_transcriber.cli:main"
 tg-web = "telegram_voice_transcriber.web:run"
 
+[tool.setuptools.packages.find]
+include = ["telegram_voice_transcriber*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"

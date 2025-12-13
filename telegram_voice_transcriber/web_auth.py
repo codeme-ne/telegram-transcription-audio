@@ -91,6 +91,25 @@ class WebAuthManager:
         """Get the underlying Telegram client."""
         return self._client
 
+    # --- Session helpers ---
+    def export_session_string(self) -> str | None:
+        """Return the current session as a string (or stored value)."""
+        if self._client:
+            return self._client.session.save()
+        return self._load_session()
+
+    def import_session_string(self, session_str: str) -> None:
+        """Load a session string to avoid re-login."""
+        if not self.api_id or not self.api_hash:
+            raise ValueError("API ID und API Hash müssen zuerst gesetzt werden.")
+        session_str = session_str.strip()
+        if not session_str:
+            raise ValueError("Session-String darf nicht leer sein.")
+
+        self._client = TelegramClient(StringSession(session_str), self.api_id, self.api_hash)
+        self._persist_session(session_str=session_str)
+        self.state = AuthState.NEEDS_PHONE  # connect() will promote to AUTHENTICATED if valid
+
     # --- Private helpers ---
     def _load_session(self) -> str | None:
         if not self.session_path.exists():
@@ -98,8 +117,9 @@ class WebAuthManager:
         value = self.session_path.read_text().strip()
         return value or None
 
-    def _persist_session(self) -> None:
-        if not self._client:
-            return
-        session_str = self._client.session.save()
+    def _persist_session(self, session_str: str | None = None) -> None:
+        if session_str is None:
+            if not self._client:
+                return
+            session_str = self._client.session.save()
         self.session_path.write_text(session_str)

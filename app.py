@@ -119,6 +119,9 @@ def render_auth_section(auth: WebAuthManager):
             st.session_state.dialogs = []
             st.rerun()
 
+    st.divider()
+    render_session_controls(auth)
+
 
 def render_setup_instructions():
     """Show instructions while not authenticated."""
@@ -134,6 +137,46 @@ def render_setup_instructions():
 
         These are your personal credentials - the app runs locally and your data never leaves your computer.
         """)
+
+
+def render_session_controls(auth: WebAuthManager):
+    """Session export/import to avoid repeated logins."""
+    st.markdown("🗝️ Session sichern/restore")
+    col_export, col_import = st.columns(2)
+
+    with col_export:
+        if st.button("Session anzeigen", key="session_export_btn"):
+            session_str = auth.export_session_string()
+            if session_str:
+                st.text_area(
+                    "Session String (kopieren und offline sichern)",
+                    value=session_str,
+                    height=120,
+                    key="session_export_area",
+                )
+                st.info("Nicht committen oder teilen. Sicher offline ablegen.")
+            else:
+                st.warning("Keine gespeicherte Session gefunden.")
+
+    with col_import:
+        session_input = st.text_input(
+            "Session importieren",
+            value="",
+            type="password",
+            help="Einen zuvor gesicherten Session-String einfügen, um Login zu überspringen.",
+            key="session_import_input",
+        )
+        if st.button("Übernehmen", key="session_import_btn"):
+            try:
+                auth.import_session_string(session_input)
+                run_async(auth.connect())
+                if auth.state == AuthState.AUTHENTICATED:
+                    st.success(f"Session importiert. Eingeloggt als {auth.user_info['name']}.")
+                    st.rerun()
+                else:
+                    st.info("Session geladen. Falls sie abgelaufen ist, bitte Code erneut eingeben.")
+            except Exception as e:
+                st.error(f"Session-Import fehlgeschlagen: {e}")
 
 
 def _apply_date_preset(preset: str) -> None:

@@ -182,24 +182,26 @@ def render_transcription_ui(auth: WebAuthManager):
         if preset != "Benutzerdefiniert":
             _apply_date_preset(preset)
 
-        col_from, col_to = st.columns(2)
-        with col_from:
-            since_date = st.date_input(
-                "Von",
-                value=st.session_state.since_date,
-                key="since_picker",
-            )
-        with col_to:
-            until_date = st.date_input(
-                "Bis",
-                value=st.session_state.until_date,
-                key="until_picker",
-            )
-
-        # Update session state if manually changed
         if preset == "Benutzerdefiniert":
+            col_from, col_to = st.columns(2)
+            with col_from:
+                since_date = st.date_input(
+                    "Von",
+                    value=st.session_state.since_date,
+                    key="since_picker",
+                )
+            with col_to:
+                until_date = st.date_input(
+                    "Bis",
+                    value=st.session_state.until_date,
+                    key="until_picker",
+                )
+
+            # Update session state if manually changed
             st.session_state.since_date = since_date
             st.session_state.until_date = until_date
+        else:
+            st.caption(f"Von: {st.session_state.since_date} · Bis (inkl.): {st.session_state.until_date}")
 
         # Message types
         message_types = st.multiselect(
@@ -270,6 +272,7 @@ def process_transcription(
 ):
     """Run the transcription pipeline with progress updates."""
     year = since_date.year  # For path compatibility
+    until_exclusive = until_date + timedelta(days=1)
 
     base_dir = Path(".data/web")
     base_dir.mkdir(parents=True, exist_ok=True)
@@ -289,7 +292,7 @@ def process_transcription(
         model_size=model_size,
         base_dir=base_dir,
         since_date=since_date.strftime("%Y-%m-%d"),
-        until_date=until_date.strftime("%Y-%m-%d"),
+        until_date=until_exclusive.strftime("%Y-%m-%d"),
     )
 
     with st.status("Processing...", expanded=True) as status:

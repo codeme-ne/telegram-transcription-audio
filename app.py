@@ -1,6 +1,7 @@
 """Streamlit web UI for Telegram Voice Transcriber."""
 from __future__ import annotations
 
+import logging
 import streamlit as st
 from pathlib import Path
 from datetime import date, timedelta
@@ -17,6 +18,8 @@ from telegram_voice_transcriber.pipeline import PipelineOptions, ProcessingPipel
 from telegram_voice_transcriber.state import ProcessingState
 from telegram_voice_transcriber.transcribe import WhisperTranscriber
 from telegram_voice_transcriber.writer import FileWriter
+
+logger = logging.getLogger("webui")
 
 st.set_page_config(
     page_title="Telegram Voice Transcriber",
@@ -37,9 +40,14 @@ if "since_date" not in st.session_state:
     st.session_state.since_date = date.today() - timedelta(days=7)
 if "until_date" not in st.session_state:
     st.session_state.until_date = date.today()
+if "log_path" not in st.session_state:
+    st.session_state.log_path = Path(".data/web/logs/app.log")
+if "logging_configured" not in st.session_state:
+    st.session_state.logging_configured = False
 
 
 def main():
+    _setup_logging()
     st.title("🎙️ Telegram Voice Transcriber")
     st.markdown("Transcribe Telegram voice messages locally using Whisper. No Premium required.")
 
@@ -121,6 +129,7 @@ def render_auth_section(auth: WebAuthManager):
 
     st.divider()
     render_session_controls(auth)
+    render_log_viewer()
 
 
 def render_setup_instructions():
@@ -177,6 +186,25 @@ def render_session_controls(auth: WebAuthManager):
                     st.info("Session geladen. Falls sie abgelaufen ist, bitte Code erneut eingeben.")
             except Exception as e:
                 st.error(f"Session-Import fehlgeschlagen: {e}")
+
+
+def render_log_viewer():
+    """Simple log viewer to inspect background processing."""
+    st.markdown("📜 Logs")
+    log_path: Path = st.session_state.log_path
+    if not log_path.exists():
+        st.caption("Noch keine Logs geschrieben.")
+        return
+
+    content = _read_log_tail(log_path)
+    st.text_area(
+        "Letzte Log-Zeilen",
+        value=content,
+        height=200,
+        key="log_viewer",
+        label_visibility="collapsed",
+    )
+    st.caption(f"Log-Datei: {log_path} (nicht committen; .data ist git-ignored)")
 
 
 def _apply_date_preset(preset: str) -> None:
@@ -316,6 +344,7 @@ def process_transcription(
     """Run the transcription pipeline with progress updates."""
     year = since_date.year  # For path compatibility
     until_exclusive = until_date + timedelta(days=1)
+    logger.info("Start transcription | chat=%s since=%s until=%s dry_run=%s types=%s", chat_name, since_date, until_date, dry_run, message_types)
 
     base_dir = Path(".data/web")
     base_dir.mkdir(parents=True, exist_ok=True)
@@ -357,9 +386,11 @@ def process_transcription(
         ))
 
         st.write(f"Found {len(collection.messages)} messages")
+        logger.info("Collected %s messages for chat=%s", len(collection.messages), chat_name)
 
         if not collection.messages:
             status.update(label="No messages found", state="complete")
+            logger.info("No messages found for chat=%s in range %s-%s", chat_name, since_date, until_date)
             return
 
         # Setup pipeline
@@ -418,15 +449,46 @@ def process_transcription(
         else:
             status.update(label="Transcription complete!", state="complete")
             st.write(f"Processed {result.processed_messages} messages")
+            logger.info("Transcription complete | processed=%s chat=%s", result.processed_messages, chat_name)
 
             # Load result for download
             if result.output_path and result.output_path.exists():
                 st.session_state.result_markdown = result.output_path.read_text()
+                logger.info("Markdown ready at %s", result.output_path)
 
 
 class _DummyTranscriber:
     def transcribe(self, audio_path):
         return "[Dry run - no transcription]"
+
+
+def _setup_logging() -> None:
+    """Configure file logging once per session."""
+    if st.session_state.logging_configured:
+        return
+
+    log_path: Path = st.session_state.log_path
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    handler = logging.FileHandler(log_path, encoding="utf-8")
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    handler.setFormatter(formatter)
+
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    root.addHandler(handler)
+
+    st.session_state.logging_configured = True
+
+
+def _read_log_tail(path: Path, max_bytes: int = 8000) -> str:
+    try:
+        data = path.read_bytes()
+    except FileNotFoundError:
+        return ""
+    if len(data) > max_bytes:
+        data = data[-max_bytes:]
+    return data.decode("utf-8", errors="replace")
 
 
 if __name__ == "__main__":

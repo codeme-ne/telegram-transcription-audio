@@ -233,7 +233,8 @@ def render_transcription_ui(auth: WebAuthManager):
             auth=auth,
             chat_id=dialog_options[selected_chat],
             chat_name=selected_chat,
-            year=year,
+            since_date=st.session_state.since_date,
+            until_date=st.session_state.until_date,
             message_types=message_types,
             include_self=include_self,
             language=language,
@@ -248,7 +249,7 @@ def render_transcription_ui(auth: WebAuthManager):
         st.download_button(
             "⬇️ Download Markdown",
             data=st.session_state.result_markdown,
-            file_name=f"transcript-{year}.md",
+            file_name=f"transcript-{st.session_state.since_date}-{st.session_state.until_date}.md",
             mime="text/markdown",
         )
         with st.expander("Preview"):
@@ -259,7 +260,8 @@ def process_transcription(
     auth: WebAuthManager,
     chat_id: int,
     chat_name: str,
-    year: int,
+    since_date: date,
+    until_date: date,
     message_types: list[str],
     include_self: bool,
     language: str,
@@ -267,6 +269,7 @@ def process_transcription(
     dry_run: bool,
 ):
     """Run the transcription pipeline with progress updates."""
+    year = since_date.year  # For path compatibility
 
     base_dir = Path(".data/web")
     base_dir.mkdir(parents=True, exist_ok=True)
@@ -285,6 +288,8 @@ def process_transcription(
         language=language,
         model_size=model_size,
         base_dir=base_dir,
+        since_date=since_date.strftime("%Y-%m-%d"),
+        until_date=until_date.strftime("%Y-%m-%d"),
     )
 
     with st.status("Processing...", expanded=True) as status:
@@ -294,7 +299,7 @@ def process_transcription(
         collector_filter = FilterConfig(
             allowed_sender_ids=None,
             allowed_types=set(MessageType(t) for t in message_types),
-            year=year,
+            year=None,
             include_self=True,
         )
 
@@ -343,7 +348,7 @@ def process_transcription(
             filter_config=FilterConfig(
                 allowed_sender_ids=sender_ids or None,
                 allowed_types=set(MessageType(t) for t in message_types),
-                year=year,
+                year=None,
                 include_self=include_self,
             ),
             exporter=exporter,

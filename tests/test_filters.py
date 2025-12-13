@@ -64,6 +64,17 @@ def test_excludes_messages_outside_year(alice_user, lukasz_user):
     assert should_include_message(message, config, self_user_id=lukasz_user) is False
 
 
+def test_skips_year_filter_when_none(alice_user, lukasz_user):
+    config = FilterConfig(
+        allowed_sender_ids={alice_user},
+        allowed_types={MessageType.VOICE, MessageType.TEXT},
+        year=None,
+        include_self=False,
+    )
+    message = build_message(2, alice_user, year=2024)
+    assert should_include_message(message, config, self_user_id=lukasz_user) is True
+
+
 def test_excludes_self_voice_when_not_requested(alice_user, lukasz_user):
     config = FilterConfig(
         allowed_sender_ids={alice_user},

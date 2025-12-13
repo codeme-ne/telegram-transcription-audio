@@ -28,7 +28,7 @@ class MessageType(str, Enum):
 class FilterConfig:
     allowed_sender_ids: Optional[set[int]]
     allowed_types: set[MessageType]
-    year: int
+    year: Optional[int]
     include_self: bool
 
 
@@ -66,7 +66,8 @@ def should_include_message(
     if message.message_type not in config.allowed_types:
         return False
 
-    if not within_year(message.date, config.year):
+    # When year is None we skip the year-based filter (used for date-range mode).
+    if config.year is not None and not within_year(message.date, config.year):
         return False
 
     if message.sender_id == self_user_id:

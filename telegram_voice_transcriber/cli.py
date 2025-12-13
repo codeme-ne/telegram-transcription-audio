@@ -16,7 +16,7 @@ from telethon.errors import (
     SessionPasswordNeededError,
 )
 
-from .config import AppConfig, build_app_config
+from .config import AppConfig, build_app_config, compute_date_range
 from .download import MediaDownloader
 from .dry_run import DryRunReport
 from .export_md import MarkdownExporter
@@ -158,10 +158,12 @@ async def run_app(config: AppConfig, console: Console, *, count: Optional[int] =
         await ensure_authorized(client, console)
 
         collector = TelegramCollector(client)
+        default_range = compute_date_range(config.year)
+        filter_year = None if config.date_range != default_range else config.year
         collector_filter = FilterConfig(
             allowed_sender_ids=None,
             allowed_types=set(config.include_types),
-            year=config.year,
+            year=filter_year,
             include_self=True,
         )
         collection = await collector.collect(
@@ -196,7 +198,7 @@ async def run_app(config: AppConfig, console: Console, *, count: Optional[int] =
             filter_config=FilterConfig(
                 allowed_sender_ids=allowed_sender_ids,
                 allowed_types=set(config.include_types),
-                year=config.year,
+                year=filter_year,
                 include_self=config.include_self,
             ),
             exporter=exporter,

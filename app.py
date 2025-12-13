@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import streamlit as st
 from pathlib import Path
+from datetime import date, timedelta
 
 from telegram_voice_transcriber.async_helpers import run_async
 from telegram_voice_transcriber.web_auth import WebAuthManager, AuthState
@@ -32,6 +33,10 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 if "result_markdown" not in st.session_state:
     st.session_state.result_markdown = None
+if "since_date" not in st.session_state:
+    st.session_state.since_date = date.today() - timedelta(days=7)
+if "until_date" not in st.session_state:
+    st.session_state.until_date = date.today()
 
 
 def main():
@@ -131,6 +136,20 @@ def render_setup_instructions():
         """)
 
 
+def _apply_date_preset(preset: str) -> None:
+    """Set since/until dates based on preset selection."""
+    today = date.today()
+    presets = {
+        "7 Tage": 7,
+        "2 Wochen": 14,
+        "1 Monat": 30,
+        "3 Monate": 90,
+    }
+    if preset in presets:
+        st.session_state.since_date = today - timedelta(days=presets[preset])
+        st.session_state.until_date = today
+
+
 def render_transcription_ui(auth: WebAuthManager):
     """Main transcription interface when authenticated."""
 
@@ -152,8 +171,35 @@ def render_transcription_ui(auth: WebAuthManager):
             help="Choose which chat to transcribe"
         )
 
-        # Date/Year settings
-        year = st.number_input("Year", min_value=2015, max_value=2025, value=2025)
+        # Date range selection
+        st.markdown("**Zeitraum**")
+        preset = st.radio(
+            "Schnellauswahl",
+            options=["7 Tage", "2 Wochen", "1 Monat", "3 Monate", "Benutzerdefiniert"],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+        if preset != "Benutzerdefiniert":
+            _apply_date_preset(preset)
+
+        col_from, col_to = st.columns(2)
+        with col_from:
+            since_date = st.date_input(
+                "Von",
+                value=st.session_state.since_date,
+                key="since_picker",
+            )
+        with col_to:
+            until_date = st.date_input(
+                "Bis",
+                value=st.session_state.until_date,
+                key="until_picker",
+            )
+
+        # Update session state if manually changed
+        if preset == "Benutzerdefiniert":
+            st.session_state.since_date = since_date
+            st.session_state.until_date = until_date
 
         # Message types
         message_types = st.multiselect(
